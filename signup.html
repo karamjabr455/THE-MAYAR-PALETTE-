@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>إنشاء حساب | The Mayyar Palette</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --matte-black:#0C0C0C; --warm-beige:#E6D5C3; --pure-white:#FFFFFF;
+  --panel:rgba(255,255,255,.03); --panel-hover:rgba(230,213,195,.08); --line:rgba(230,213,195,.18);
+  --muted:#8f8779; --text-soft:#cfc6bb;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--matte-black);color:var(--pure-white);font-family:'Cairo',sans-serif;min-height:100vh;overflow-x:hidden;}
+::selection{background:var(--warm-beige);color:var(--matte-black);}
+a{color:inherit;}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--warm-beige);outline-offset:3px;}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;transition-duration:.001ms !important;}}
+
+.top-bar{position:fixed;top:0;left:0;width:100%;padding:1.4rem 5%;display:flex;justify-content:space-between;align-items:center;z-index:10;}
+.logo{font-family:'Cinzel',serif;font-size:1.3rem;font-weight:600;letter-spacing:3px;color:var(--warm-beige);text-decoration:none;}
+.back-link{font-size:.85rem;color:var(--text-soft);text-decoration:none;display:flex;align-items:center;gap:.4rem;transition:.25s;}
+.back-link:hover{color:var(--warm-beige);}
+
+.auth-shell{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;}
+.auth-visual{position:relative;overflow:hidden;background:#050505;order:2;}
+.auth-visual img{width:100%;height:100%;object-fit:cover;opacity:.55;filter:grayscale(.15) brightness(.7);}
+.auth-visual::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg, rgba(12,12,12,.9), rgba(12,12,12,.15) 45%, rgba(12,12,12,.55));}
+.auth-visual-text{position:absolute;bottom:3.5rem;right:3rem;left:3rem;z-index:2;}
+.auth-visual-text .eyebrow{font-family:'Cinzel',serif;letter-spacing:3px;font-size:.75rem;color:var(--warm-beige);text-transform:uppercase;}
+.auth-visual-text h2{font-family:'Cairo',sans-serif;font-weight:600;font-size:1.9rem;margin-top:.8rem;line-height:1.6;color:var(--pure-white);max-width:420px;}
+
+.auth-form-side{display:flex;align-items:center;justify-content:center;padding:6rem 2rem 3rem;}
+.auth-card{width:100%;max-width:420px;opacity:0;animation:cardIn .7s .1s cubic-bezier(.16,1,.3,1) forwards;}
+@keyframes cardIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.auth-card h1{font-family:'Cinzel',serif;font-size:1.7rem;font-weight:600;color:var(--warm-beige);letter-spacing:1px;}
+.auth-card .sub{color:var(--muted);font-size:.9rem;margin-top:.6rem;line-height:1.8;}
+
+.field{margin-top:1.5rem;position:relative;}
+.field label{display:block;font-size:.8rem;color:var(--text-soft);margin-bottom:.5rem;letter-spacing:.3px;}
+.field input{
+  width:100%;background:var(--panel);border:1px solid var(--line);color:var(--pure-white);
+  padding:.9rem 1rem;font-family:'Cairo',sans-serif;font-size:.95rem;border-radius:6px;transition:.25s;
+}
+.field input::placeholder{color:#5c584f;}
+.field input:focus{border-color:var(--warm-beige);background:rgba(230,213,195,.05);}
+.field .toggle-pass{
+  position:absolute;left:.9rem;top:2.4rem;background:none;border:none;color:var(--muted);
+  cursor:pointer;font-size:.78rem;font-family:'Cairo',sans-serif;
+}
+.field .toggle-pass:hover{color:var(--warm-beige);}
+.field-error{color:#e08a7d;font-size:.78rem;margin-top:.45rem;display:none;}
+.field.invalid input{border-color:#e08a7d;}
+.field.invalid .field-error{display:block;}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+
+.strength{margin-top:.7rem;display:flex;gap:5px;}
+.strength span{height:3px;flex:1;background:var(--line);border-radius:2px;transition:.3s;}
+.strength-label{font-size:.74rem;color:var(--muted);margin-top:.4rem;}
+
+.terms{display:flex;align-items:flex-start;gap:.6rem;margin-top:1.6rem;font-size:.82rem;color:var(--text-soft);line-height:1.7;}
+.terms input{accent-color:var(--warm-beige);width:15px;height:15px;margin-top:.2rem;flex-shrink:0;}
+.link-beige{color:var(--warm-beige);text-decoration:none;border-bottom:1px solid transparent;transition:.25s;}
+.link-beige:hover{border-color:var(--warm-beige);}
+
+.btn-primary{
+  margin-top:1.8rem;width:100%;padding:1rem;background:var(--warm-beige);border:none;color:var(--matte-black);
+  font-family:'Cinzel',serif;font-weight:600;letter-spacing:2px;font-size:.85rem;text-transform:uppercase;
+  border-radius:6px;cursor:pointer;transition:.3s;position:relative;overflow:hidden;
+}
+.btn-primary:hover:not(:disabled){background:#f0e4d6;transform:translateY(-1px);}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed;}
+.btn-primary.loading{color:transparent;pointer-events:none;}
+.btn-primary.loading::after{
+  content:'';position:absolute;inset:0;margin:auto;width:18px;height:18px;border-radius:50%;
+  border:2px solid rgba(12,12,12,.25);border-top-color:var(--matte-black);animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.switch-line{text-align:center;margin-top:2rem;font-size:.88rem;color:var(--muted);}
+
+@media (max-width:900px){
+  .auth-shell{grid-template-columns:1fr;}
+  .auth-visual{display:none;}
+  .auth-form-side{padding-top:7rem;}
+  .two-col{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="index.html" class="logo">MAYYAR</a>
+  <a href="index.html" class="back-link">العودة للمتجر ←</a>
+</div>
+
+<div class="auth-shell">
+  <div class="auth-visual">
+    <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1400&auto=format" alt="">
+    <div class="auth-visual-text">
+      <div class="eyebrow">The Mayyar Palette</div>
+      <h2>انضمّي إلى عالم الأناقة الراقية، واحصلي على معاينات حصرية قبل الجميع.</h2>
+    </div>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-card">
+      <h1>إنشاء حساب</h1>
+      <p class="sub">أنشئي حسابك للاستمتاع بتجربة تسوّق مخصصة ومحفوظة.</p>
+
+      <form id="signupForm" novalidate>
+        <div class="two-col">
+          <div class="field" id="firstField">
+            <label for="first">الاسم الأول</label>
+            <input type="text" id="first" placeholder="ندى" autocomplete="given-name" required>
+            <div class="field-error">مطلوب</div>
+          </div>
+          <div class="field" id="lastField">
+            <label for="last">اسم العائلة</label>
+            <input type="text" id="last" placeholder="الخوري" autocomplete="family-name" required>
+            <div class="field-error">مطلوب</div>
+          </div>
+        </div>
+
+        <div class="field" id="emailField">
+          <label for="email">البريد الإلكتروني</label>
+          <input type="email" id="email" placeholder="example@email.com" autocomplete="email" required>
+          <div class="field-error">الرجاء إدخال بريد إلكتروني صحيح</div>
+        </div>
+
+        <div class="field" id="passField">
+          <label for="password">كلمة المرور</label>
+          <input type="password" id="password" placeholder="8 أحرف على الأقل" autocomplete="new-password" required>
+          <button type="button" class="toggle-pass" id="togglePass">إظهار</button>
+          <div class="strength"><span></span><span></span><span></span><span></span></div>
+          <div class="strength-label" id="strengthLabel">قوة كلمة المرور</div>
+          <div class="field-error">يجب ألا تقل عن 8 أحرف</div>
+        </div>
+
+        <div class="field" id="confirmField">
+          <label for="confirm">تأكيد كلمة المرور</label>
+          <input type="password" id="confirm" placeholder="أعيدي كتابة كلمة المرور" autocomplete="new-password" required>
+          <div class="field-error">كلمتا المرور غير متطابقتين</div>
+        </div>
+
+        <label class="terms">
+          <input type="checkbox" id="terms">
+          أوافق على <a href="#" class="link-beige">الشروط والأحكام</a> و<a href="#" class="link-beige">سياسة الخصوصية</a>
+        </label>
+
+        <button type="submit" class="btn-primary" id="signupBtn">إنشاء الحساب</button>
+      </form>
+
+      <p class="switch-line">لديك حساب بالفعل؟ <a href="login.html" class="link-beige">تسجيل الدخول</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+const splashScreen = document.getElementById('splashScreen');
+if (splashScreen) {
+  setTimeout(() => splashScreen.classList.add('hide'), 1400);
+}
+
+const form = document.getElementById('signupForm');
+const password = document.getElementById('password');
+const confirm = document.getElementById('confirm');
+const strengthBars = document.querySelectorAll('.strength span');
+const strengthLabel = document.getElementById('strengthLabel');
+const terms = document.getElementById('terms');
+const signupBtn = document.getElementById('signupBtn');
+
+document.getElementById('togglePass').addEventListener('click', () => {
+  const isPass = password.type === 'password';
+  password.type = isPass ? 'text' : 'password';
+  document.getElementById('togglePass').textContent = isPass ? 'إخفاء' : 'إظهار';
+});
+
+function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+function scorePassword(v){
+  let score = 0;
+  if(v.length >= 8) score++;
+  if(/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
+  if(/\d/.test(v)) score++;
+  if(/[^A-Za-z0-9]/.test(v)) score++;
+  return score;
+}
+const strengthColors = ['#e08a7d','#e0b57d','#d9c37a','#8fd6a0'];
+const strengthTexts = ['ضعيفة','متوسطة','جيدة','قوية جداً'];
+
+password.addEventListener('input', () => {
+  const score = scorePassword(password.value);
+  strengthBars.forEach((bar, i) => {
+    bar.style.background = i < score ? strengthColors[Math.max(score-1,0)] : 'var(--line)';
+  });
+  strengthLabel.textContent = password.value.length ? `قوة كلمة المرور: ${strengthTexts[Math.max(score-1,0)] || 'ضعيفة'}` : 'قوة كلمة المرور';
+  document.getElementById('passField').classList.remove('invalid');
+});
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  let valid = true;
+  const first = document.getElementById('first');
+  const last = document.getElementById('last');
+  const email = document.getElementById('email');
+
+  const checks = [
+    [first, first.value.trim().length > 0],
+    [last, last.value.trim().length > 0],
+    [email, validEmail(email.value.trim())],
+    [password, password.value.length >= 8],
+    [confirm, confirm.value === password.value && confirm.value.length > 0],
+  ];
+  checks.forEach(([el, ok]) => {
+    const field = el.closest('.field');
+    if(!ok){ field.classList.add('invalid'); valid = false; } else field.classList.remove('invalid');
+  });
+  if(!terms.checked){ valid = false; terms.parentElement.style.color = '#e08a7d'; } else terms.parentElement.style.color = '';
+  if(!valid) return;
+
+  signupBtn.classList.add('loading');
+  splashScreen?.classList.remove('hide');
+
+setTimeout(() => {
+  window.location.href = "index.html";
+}, 1400);
+});
+
+document.querySelectorAll('#signupForm input').forEach(inp => inp.addEventListener('input', () => {
+  inp.closest('.field')?.classList.remove('invalid');
+}));
+</script>
+</body>
+</html>

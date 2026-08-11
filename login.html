@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>تسجيل الدخول | The Mayyar Palette</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --matte-black:#0C0C0C; --warm-beige:#E6D5C3; --pure-white:#FFFFFF;
+  --panel:rgba(255,255,255,.03); --panel-hover:rgba(230,213,195,.08); --line:rgba(230,213,195,.18);
+  --muted:#8f8779; --text-soft:#cfc6bb;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--matte-black);color:var(--pure-white);font-family:'Cairo',sans-serif;min-height:100vh;overflow-x:hidden;}
+::selection{background:var(--warm-beige);color:var(--matte-black);}
+a{color:inherit;}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--warm-beige);outline-offset:3px;}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;transition-duration:.001ms !important;}}
+
+.top-bar{position:fixed;top:0;left:0;width:100%;padding:1.4rem 5%;display:flex;justify-content:space-between;align-items:center;z-index:10;}
+.logo{font-family:'Cinzel',serif;font-size:1.3rem;font-weight:600;letter-spacing:3px;color:var(--warm-beige);text-decoration:none;}
+.back-link{font-size:.85rem;color:var(--text-soft);text-decoration:none;display:flex;align-items:center;gap:.4rem;transition:.25s;}
+.back-link:hover{color:var(--warm-beige);}
+
+.auth-shell{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;}
+.auth-visual{position:relative;overflow:hidden;background:#050505;}
+.auth-visual img{width:100%;height:100%;object-fit:cover;opacity:.55;filter:grayscale(.15) brightness(.7);}
+.auth-visual::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg, rgba(12,12,12,.9), rgba(12,12,12,.15) 45%, rgba(12,12,12,.55));}
+.auth-visual-text{position:absolute;bottom:3.5rem;right:3rem;left:3rem;z-index:2;}
+.auth-visual-text .eyebrow{font-family:'Cinzel',serif;letter-spacing:3px;font-size:.75rem;color:var(--warm-beige);text-transform:uppercase;}
+.auth-visual-text h2{font-family:'Cairo',sans-serif;font-weight:600;font-size:1.9rem;margin-top:.8rem;line-height:1.6;color:var(--pure-white);max-width:420px;}
+
+.auth-form-side{display:flex;align-items:center;justify-content:center;padding:6rem 2rem 3rem;}
+.auth-card{width:100%;max-width:400px;opacity:0;animation:cardIn .7s .1s cubic-bezier(.16,1,.3,1) forwards;}
+@keyframes cardIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.auth-card h1{font-family:'Cinzel',serif;font-size:1.7rem;font-weight:600;color:var(--warm-beige);letter-spacing:1px;}
+.auth-card .sub{color:var(--muted);font-size:.9rem;margin-top:.6rem;line-height:1.8;}
+
+.field{margin-top:1.8rem;position:relative;}
+.field label{display:block;font-size:.8rem;color:var(--text-soft);margin-bottom:.5rem;letter-spacing:.3px;}
+.field input{
+  width:100%;background:var(--panel);border:1px solid var(--line);color:var(--pure-white);
+  padding:.9rem 1rem;font-family:'Cairo',sans-serif;font-size:.95rem;border-radius:6px;transition:.25s;
+}
+.field input::placeholder{color:#5c584f;}
+.field input:focus{border-color:var(--warm-beige);background:rgba(230,213,195,.05);}
+.field .toggle-pass{
+  position:absolute;left:.9rem;top:2.4rem;background:none;border:none;color:var(--muted);
+  cursor:pointer;font-size:.78rem;font-family:'Cairo',sans-serif;
+}
+.field .toggle-pass:hover{color:var(--warm-beige);}
+.field-error{color:#e08a7d;font-size:.78rem;margin-top:.45rem;display:none;}
+.field.invalid input{border-color:#e08a7d;}
+.field.invalid .field-error{display:block;}
+
+.row-between{display:flex;justify-content:space-between;align-items:center;margin-top:1.4rem;font-size:.85rem;}
+.remember{display:flex;align-items:center;gap:.55rem;color:var(--text-soft);cursor:pointer;user-select:none;}
+.remember input{accent-color:var(--warm-beige);width:15px;height:15px;}
+.link-beige{color:var(--warm-beige);text-decoration:none;border-bottom:1px solid transparent;transition:.25s;}
+.link-beige:hover{border-color:var(--warm-beige);}
+
+.btn-primary{
+  margin-top:2rem;width:100%;padding:1rem;background:var(--warm-beige);border:none;color:var(--matte-black);
+  font-family:'Cinzel',serif;font-weight:600;letter-spacing:2px;font-size:.85rem;text-transform:uppercase;
+  border-radius:6px;cursor:pointer;transition:.3s;position:relative;overflow:hidden;
+}
+.btn-primary:hover{background:#f0e4d6;transform:translateY(-1px);}
+.btn-primary:active{transform:translateY(0);}
+.btn-primary.loading{color:transparent;pointer-events:none;}
+.btn-primary.loading::after{
+  content:'';position:absolute;inset:0;margin:auto;width:18px;height:18px;border-radius:50%;
+  border:2px solid rgba(12,12,12,.25);border-top-color:var(--matte-black);animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.divider{display:flex;align-items:center;gap:1rem;margin:2rem 0;color:var(--muted);font-size:.78rem;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line);}
+
+.social-row{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
+.btn-social{
+  display:flex;align-items:center;justify-content:center;gap:.6rem;padding:.8rem;background:transparent;
+  border:1px solid var(--line);color:var(--text-soft);border-radius:6px;font-size:.85rem;cursor:pointer;transition:.25s;
+  font-family:'Cairo',sans-serif;
+}
+.btn-social:hover{border-color:var(--warm-beige);color:var(--warm-beige);background:var(--panel-hover);}
+
+.switch-line{text-align:center;margin-top:2.2rem;font-size:.88rem;color:var(--muted);}
+
+@media (max-width:900px){
+  .auth-shell{grid-template-columns:1fr;}
+  .auth-visual{display:none;}
+  .auth-form-side{padding-top:7rem;}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="index.html" class="logo">MAYYAR</a>
+  <a href="index.html" class="back-link">العودة للمتجر ←</a>
+</div>
+
+<div class="auth-shell">
+  <div class="auth-visual">
+    <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1400&auto=format" alt="">
+    <div class="auth-visual-text">
+      <div class="eyebrow">The Mayyar Palette</div>
+      <h2>أناقتكِ تبدأ من هنا — سجّلي دخولك وتابعي إطلالاتك المحفوظة.</h2>
+    </div>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-card">
+      <h1>تسجيل الدخول</h1>
+      <p class="sub">أهلاً بعودتك، أدخلي بياناتك للمتابعة إلى حسابك.</p>
+
+      <form id="loginForm" novalidate>
+        <div class="field" id="emailField">
+          <label for="email">البريد الإلكتروني</label>
+          <input type="email" id="email" placeholder="example@email.com" autocomplete="email" required>
+          <div class="field-error">الرجاء إدخال بريد إلكتروني صحيح</div>
+        </div>
+
+        <div class="field" id="passField">
+          <label for="password">كلمة المرور</label>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+          <button type="button" class="toggle-pass" id="togglePass">إظهار</button>
+          <div class="field-error">كلمة المرور مطلوبة</div>
+        </div>
+
+        <div class="row-between">
+          <label class="remember"><input type="checkbox"> تذكرني</label>
+          <a href="forgot-password.html" class="link-beige">نسيت كلمة المرور؟</a>
+        </div>
+
+        <button type="submit" class="btn-primary" id="loginBtn">دخول</button>
+      </form>
+
+      <div class="divider">أو تابعي عبر</div>
+      <div class="social-row">
+        <button type="button" class="btn-social">Google</button>
+        <button type="button" class="btn-social">Apple</button>
+      </div>
+
+      <p class="switch-line">ليس لديك حساب؟ <a href="signup.html" class="link-beige">إنشاء حساب جديد</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+const form = document.getElementById('loginForm');
+const emailField = document.getElementById('emailField');
+const passField = document.getElementById('passField');
+const email = document.getElementById('email');
+const password = document.getElementById('password');
+const loginBtn = document.getElementById('loginBtn');
+
+document.getElementById('togglePass').addEventListener('click', () => {
+  const isPass = password.type === 'password';
+  password.type = isPass ? 'text' : 'password';
+  document.getElementById('togglePass').textContent = isPass ? 'إخفاء' : 'إظهار';
+});
+
+function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  let valid = true;
+  if(!validEmail(email.value.trim())){ emailField.classList.add('invalid'); valid = false; } else emailField.classList.remove('invalid');
+  if(password.value.length < 1){ passField.classList.add('invalid'); valid = false; } else passField.classList.remove('invalid');
+  if(!valid) return;
+
+  loginBtn.classList.add('loading');
+  setTimeout(() => {
+    loginBtn.classList.remove('loading');
+    loginBtn.textContent = 'تم تسجيل الدخول ✓';
+  }, 1200);
+});
+
+[email, password].forEach(inp => inp.addEventListener('input', () => {
+  inp.closest('.field').classList.remove('invalid');
+}));
+</script>
+</body>
+</html>

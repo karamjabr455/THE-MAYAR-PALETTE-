@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>تفاصيل المنتج | The Mayyar Palette</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --matte-black:#0C0C0C; --warm-beige:#E6D5C3; --pure-white:#FFFFFF;
+  --panel:rgba(255,255,255,.03); --panel-hover:rgba(230,213,195,.08); --line:rgba(230,213,195,.18);
+  --muted:#8f8779; --text-soft:#cfc6bb; --danger:#e08a7d;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--matte-black);color:var(--pure-white);font-family:'Cairo',sans-serif;min-height:100vh;overflow-x:hidden;}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button,input,select{font:inherit}
+button{cursor:pointer}
+::selection{background:var(--warm-beige);color:var(--matte-black);}
+
+.topbar{position:sticky;top:0;z-index:100;padding:1.2rem 5%;display:flex;justify-content:space-between;align-items:center;background:rgba(12,12,12,.92);border-bottom:1px solid var(--line);backdrop-filter:blur(14px);}
+.logo{font-family:'Cinzel',serif;font-size:1.3rem;letter-spacing:2px;color:var(--warm-beige);text-decoration:none;}
+.back-link{color:var(--text-soft);font-size:.85rem;display:flex;align-items:center;gap:.5rem;}
+.back-link:hover{color:var(--warm-beige)}
+
+.page-shell{max-width:1400px;margin:0 auto;padding:2.5rem 5% 5rem;}
+.product-wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:2.5rem;align-items:start;}
+.gallery-block{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:1.25rem;}
+.main-image-wrap{position:relative;overflow:hidden;border-radius:18px;border:1px solid var(--line);background:#090909;cursor:zoom-in;}
+.main-image{width:100%;height:650px;object-fit:cover;transition:transform .6s ease;display:block;}
+.main-image-wrap:hover .main-image{transform:scale(1.08);}
+.gallery-thumbs{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:.8rem;margin-top:1rem;}
+.thumb{width:100%;height:100px;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer;opacity:.7;transition:.25s;}
+.thumb.active{opacity:1;border-color:var(--warm-beige);box-shadow:0 0 0 1px rgba(230,213,195,.3) inset;}
+.thumb:hover{opacity:1;}
+
+.product-info{padding:0.5rem 0;}
+.eyebrow{display:inline-block;font-size:.75rem;letter-spacing:3px;font-family:'Cinzel',serif;color:var(--warm-beige);text-transform:uppercase;background:rgba(230,213,195,.06);padding:.35rem .7rem;border:1px solid var(--line);border-radius:999px;}
+.product-title{font-family:'Cinzel',serif;font-size:clamp(2rem, 4vw, 3rem);margin-top:1rem;color:var(--pure-white);line-height:1.3;}
+.price-row{display:flex;align-items:center;gap:1rem;margin-top:1rem;flex-wrap:wrap;}
+.price{font-family:'Cinzel',serif;font-size:2rem;color:var(--warm-beige);}
+.tag{padding:.4rem .8rem;border-radius:999px;background:rgba(143,216,160,.12);border:1px solid rgba(143,216,160,.5);color:#96df9f;font-size:.75rem;}
+.meta-row{display:flex;flex-wrap:wrap;gap:.8rem 1.25rem;margin-top:1rem;color:var(--text-soft);font-size:.85rem;}
+.meta-row .dot{width:6px;height:6px;border-radius:50%;background:var(--warm-beige);display:inline-block;}
+
+.option-block{margin-top:2rem;}
+.option-head{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:.8rem;}
+.option-head h3{font-size:1rem;color:var(--warm-beige);font-weight:600;}
+.size-guide{background:none;border:none;color:var(--warm-beige);font-size:.8rem;cursor:pointer;}
+.option-group{display:flex;flex-wrap:wrap;gap:.6rem;}
+.option-chip{
+  min-width:52px;padding:.75rem .9rem;border-radius:10px;border:1px solid var(--line); background:transparent;
+  color:var(--text-soft);transition:.25s; font-weight:500;
+}
+.option-chip:hover{border-color:rgba(230,213,195,.4);color:var(--warm-beige)}
+.option-chip.active{background:var(--warm-beige);color:var(--matte-black);border-color:var(--warm-beige);}
+.option-chip.color{min-width:74px;padding:.6rem .8rem;display:flex;align-items:center;justify-content:center;gap:.45rem;}
+.option-chip .swatch{width:12px;height:12px;border-radius:50%;display:inline-block;border:1px solid rgba(255,255,255,.3)}
+
+.product-actions{display:flex;flex-wrap:wrap;gap:1rem;margin-top:2rem;}
+.btn-primary, .btn-secondary{
+  border:none;border-radius:12px;padding:1rem 1.6rem;font-family:'Cinzel',serif;font-size:.9rem;letter-spacing:1px;transition:.25s;
+}
+.btn-primary{background:var(--warm-beige);color:var(--matte-black);min-width:220px;}
+.btn-primary:hover{transform:translateY(-1px);background:#f0e4d6;}
+.btn-secondary{background:transparent;border:1px solid var(--line);color:var(--warm-beige);}
+.btn-secondary:hover{background:var(--panel-hover)}
+
+.qty-box{display:inline-flex;align-items:center;gap:.7rem;padding:.5rem .7rem;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.03);}
+.qty-box button{width:28px;height:28px;border:none;border-radius:8px;background:transparent;color:var(--warm-beige);font-size:1.3rem;}
+.qty-box .qty-value{min-width:18px;text-align:center;font-weight:600;}
+
+.feature-grid{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:1rem;margin-top:2.2rem;}
+.feature-card{padding:1.2rem;background:var(--panel);border:1px solid var(--line);border-radius:16px;}
+.feature-card h4{font-family:'Cinzel',serif;color:var(--warm-beige);font-size:.85rem;margin-bottom:.45rem;letter-spacing:1px;}
+.feature-card p{color:var(--text-soft);font-size:.82rem;line-height:1.8;}
+
+.related-section{margin-top:4rem;}
+.related-header{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1.2rem;}
+.related-header h2{font-family:'Cinzel',serif;color:var(--warm-beige);font-size:1.4rem;}
+.related-grid{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:1.2rem;}
+.related-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:.8rem;transition:.25s;}
+.related-card:hover{transform:translateY(-4px);background:var(--panel-hover);}
+.related-card img{width:100%;height:260px;object-fit:cover;border-radius:12px;}
+.related-card .title{margin-top:.9rem;font-size:.95rem;color:var(--warm-beige);font-weight:600;}
+.related-card .meta{display:flex;justify-content:space-between;align-items:center;margin-top:.25rem;color:var(--text-soft);font-size:.82rem;}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:1000;padding:1.5rem;}
+.modal.show{display:flex;}
+.modal-card{width:min(620px,100%);background:#111; border:1px solid var(--line); border-radius:20px; padding:1.5rem; position:relative;}
+.modal-card h3{font-family:'Cinzel',serif;color:var(--warm-beige);margin-bottom:1rem;}
+.close-btn{position:absolute;top:1rem;left:1rem;background:none;border:none;color:var(--text-soft);font-size:1.4rem;cursor:pointer;}
+.size-table{width:100%;border-collapse:collapse;margin-top:.8rem;}
+.size-table th, .size-table td{padding:.9rem .7rem;border-bottom:1px solid var(--line);text-align:center;font-size:.82rem;}
+.size-table th{color:var(--warm-beige);font-weight:600;}
+.size-table td:first-child, .size-table th:first-child{text-align:right;}
+
+@media (max-width: 1024px){
+  .product-wrap{grid-template-columns:1fr;}
+  .related-grid{grid-template-columns:repeat(2, minmax(0,1fr));}
+}
+@media (max-width: 640px){
+  .gallery-thumbs{grid-template-columns:repeat(4, minmax(0,1fr));}
+  .main-image{height:460px;}
+  .related-grid{grid-template-columns:1fr;}
+  .feature-grid{grid-template-columns:1fr;}
+  .product-actions{flex-direction:column;}
+  .btn-primary,.btn-secondary{width:100%;}
+  .qty-box{justify-content:center;}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <a href="index.html" class="logo">MAYYAR</a>
+  <a href="index.html" class="back-link">العودة للمتجر ←</a>
+</nav>
+
+<div class="page-shell">
+  <div class="product-wrap">
+    <div class="gallery-block">
+      <div class="main-image-wrap">
+        <img id="mainImage" class="main-image" src="" alt="">
+      </div>
+      <div class="gallery-thumbs" id="thumbs"></div>
+    </div>
+
+    <div class="product-info">
+      <span class="eyebrow">RUNWAY EDIT</span>
+      <h1 class="product-title" id="productTitle">...</h1>
+      <div class="price-row">
+        <div class="price" id="productPrice">€0</div>
+        <span class="tag">توصيل سريع</span>
+      </div>
+      <div class="meta-row">
+        <span><span class="dot"></span> صنع يدوي</span>
+        <span><span class="dot"></span> تجميع فوري</span>
+        <span><span class="dot"></span> شحن دولي</span>
+      </div>
+
+      <div class="option-block">
+        <div class="option-head">
+          <h3>المقاس</h3>
+          <button class="size-guide" type="button" id="sizeGuideBtn">دليل المقاسات</button>
+        </div>
+        <div class="option-group" id="sizeOptions"></div>
+      </div>
+
+      <div class="option-block">
+        <div class="option-head">
+          <h3>اللون</h3>
+        </div>
+        <div class="option-group" id="colorOptions"></div>
+      </div>
+
+      <div class="product-actions">
+        <div class="qty-box">
+          <button type="button" id="qtyMinus">−</button>
+          <span class="qty-value" id="qtyValue">1</span>
+          <button type="button" id="qtyPlus">+</button>
+        </div>
+        <button class="btn-primary" id="addToCartBtn" type="button">أضف للسلة</button>
+        <button class="btn-secondary" type="button" id="buyNowBtn">شراء الآن</button>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h4>القماش</h4>
+          <p id="fabricDesc">...</p>
+        </div>
+        <div class="feature-card">
+          <h4>الوصف</h4>
+          <p id="productDesc">...</p>
+        </div>
+        <div class="feature-card">
+          <h4>التفاصيل</h4>
+          <p id="productDetails">...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="related-section">
+    <div class="related-header">
+      <h2>منتجات مشابهة</h2>
+    </div>
+    <div class="related-grid" id="relatedGrid"></div>
+  </section>
+</div>
+
+<div class="modal" id="sizeModal" aria-hidden="true">
+  <div class="modal-card">
+    <button class="close-btn" type="button" id="closeSizeModal" aria-label="إغلاق">×</button>
+    <h3>دليل المقاسات</h3>
+    <table class="size-table">
+      <thead>
+        <tr>
+          <th>المقاس</th>
+          <th>الكتف</th>
+          <th>الصدر</th>
+          <th>الطول</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>S</td><td>40 cm</td><td>88 cm</td><td>64 cm</td></tr>
+        <tr><td>M</td><td>42 cm</td><td>94 cm</td><td>66 cm</td></tr>
+        <tr><td>L</td><td>44 cm</td><td>100 cm</td><td>68 cm</td></tr>
+        <tr><td>XL</td><td>46 cm</td><td>106 cm</td><td>70 cm</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const products = {
+  'dress-1': {
+    id: 'dress-1',
+    name: 'فستان حريري',
+    price: 480,
+    colors: [
+      { name: 'بيج', value: '#d9c2a0', code: 'بيج' },
+      { name: 'أسود', value: '#1b1b1b', code: 'أسود' },
+      { name: 'أزرق', value: '#7ca2bb', code: 'أزرق' }
+    ],
+    sizes: ['S', 'M', 'L', 'XL'],
+    fabric: 'حرير طبيعي مع لمسة ناعمة ومبطن بالكامل، مناسب للارتداء اليومي والاحتفالات.',
+    description: 'فستان أنيق بتصميم سينمائي وجوانب أنيقة، مصمم ليمنحك إطلالة ناعمة مع تفاصيل فاخرة.',
+    details: 'قطن داخلي ناعم • طبعة أنيقة • خياطة دقيقة • مناسب لفصل الربيع والخريف.',
+    gallery: [
+      'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900'
+    ],
+    similar: ['coat-1', 'bag-1', 'scarf-1']
+  },
+  'coat-1': {
+    id: 'coat-1',
+    name: 'معطف كشمير',
+    price: 890,
+    colors: [
+      { name: 'كحلي', value: '#3b4f46', code: 'كحلي' },
+      { name: 'بيج', value: '#d7c8b3', code: 'بيج' },
+      { name: 'أسود', value: '#191919', code: 'أسود' }
+    ],
+    sizes: ['S', 'M', 'L', 'XL'],
+    fabric: 'كتان كشمير عالي الجودة مع بطانة ناعمة تضمن دفئًا وراحة طوال اليوم.',
+    description: 'معطف فخم يوازن بين الكلاسيك والحداثة، مناسب للتجهيزات اليومية أو المناسبات الرسمية.',
+    details: 'طبقة داخلية ناعمة • قطع أنيقة • تصميم خفيف • مناسب لشتاء معتدل.',
+    gallery: [
+      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900'
+    ],
+    similar: ['dress-1', 'bag-1', 'shoe-1']
+  },
+  'bag-1': {
+    id: 'bag-1',
+    name: 'حقيبة جلدية',
+    price: 620,
+    colors: [
+      { name: 'أسود', value: '#1d1d1d', code: 'أسود' },
+      { name: 'بني', value: '#6c4a3c', code: 'بني' },
+      { name: 'كريمي', value: '#d9d1c4', code: 'كريمي' }
+    ],
+    sizes: ['one size'],
+    fabric: 'جلد صناعي عالي الجودة مصمم لتحمل الاستخدام اليومي وتضيف لمسة فاخرة لكل إطلالة.',
+    description: 'حقيبة أنيقة بمقاس عملي ومناسب لكل اقتناء يقدّم لمسة من الفخامة للملابس اليومية.',
+    details: 'مقاس عملي • مقابض متينة • تنظيم داخلي • إنهاء فاخر.',
+    gallery: [
+      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1523170335258-f5ed118de2b4?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900'
+    ],
+    similar: ['dress-1', 'coat-1', 'scarf-1']
+  },
+  'shoe-1': {
+    id: 'shoe-1',
+    name: 'حذاء أنيق',
+    price: 360,
+    colors: [
+      { name: 'أسود', value: '#1a1a1a', code: 'أسود' },
+      { name: 'بيج', value: '#d5b594', code: 'بيج' },
+      { name: 'أبيض', value: '#f5f0ea', code: 'أبيض' }
+    ],
+    sizes: ['36', '37', '38', '39', '40', '41'],
+    fabric: 'جلد مريح ونعومة داخلية تدعم المشي اليومي مع تفاصيل شبه فاخرة.',
+    description: 'حذاء عصري يحقق مزيجًا مثاليًا بين الراحة والأناقة، مناسب للملابس اليومية والاحتفالية.',
+    details: 'قوة استقرار • بطانة مريحة • تصميم أنيق • مناسب لمختلف الأناقة.',
+    gallery: [
+      'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900'
+    ],
+    similar: ['dress-1', 'coat-1', 'bag-1']
+  },
+  'watch-1': {
+    id: 'watch-1',
+    name: 'ساعة فاخرة',
+    price: 540,
+    colors: [
+      { name: 'ذهبي', value: '#b99c5a', code: 'ذهبي' },
+      { name: 'فضي', value: '#b8b8b8', code: 'فضي' },
+      { name: 'أسود', value: '#1e1e1e', code: 'أسود' }
+    ],
+    sizes: ['one size'],
+    fabric: 'معدن عالي الجودة مع شاشة ملفتة، مصمم لتضيف لمسة فاخرة لكل إطلالة.',
+    description: 'ساعة أنيقة تضيف طابعًا فاخرًا، مناسبة للملابس اليومية والمناسبات الراقية.',
+    details: 'حافظة قوية • تصميم أنيق • إضافة فاخرة للستايليست.',
+    gallery: [
+      'https://images.unsplash.com/photo-1523170335258-f5ed118de2b4?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900'
+    ],
+    similar: ['dress-1', 'scarf-1', 'bag-1']
+  },
+  'scarf-1': {
+    id: 'scarf-1',
+    name: 'وشاح فاخر',
+    price: 290,
+    colors: [
+      { name: 'بيج', value: '#d8c6a8', code: 'بيج' },
+      { name: 'خردلي', value: '#7e7f53', code: 'خردلي' },
+      { name: 'أسود', value: '#1e1e1e', code: 'أسود' }
+    ],
+    sizes: ['one size'],
+    fabric: 'قماش ناعم ومرن يمنحك إطلالة أنيقة مع تحكم في الشكل وملمس فاخر.',
+    description: 'وشاح أنيق يضيف لمسة فاخرة إلى كل إطلالة، خاصة مع الملابس الكلاسيكية.',
+    details: 'خياطة دقيقة • قماش ناعم • مناسب للأنوثة والاحتفالات.',
+    gallery: [
+      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900',
+      'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=900'
+    ],
+    similar: ['dress-1', 'bag-1', 'shoe-1']
+  }
+};
+
+const params = new URLSearchParams(window.location.search);
+const selectedId = params.get('id') || 'dress-1';
+const product = products[selectedId] || products['dress-1'];
+
+let selectedSize = product.sizes[0] || 'M';
+let selectedColor = product.colors[0] || { name: 'أسود', value: '#1a1a1a', code: 'أسود' };
+let qty = 1;
+
+const mainImageEl = document.getElementById('mainImage');
+const thumbsEl = document.getElementById('thumbs');
+const productTitle = document.getElementById('productTitle');
+const productPrice = document.getElementById('productPrice');
+const sizeOptions = document.getElementById('sizeOptions');
+const colorOptions = document.getElementById('colorOptions');
+const productDesc = document.getElementById('productDesc');
+const fabricDesc = document.getElementById('fabricDesc');
+const productDetails = document.getElementById('productDetails');
+const qtyValue = document.getElementById('qtyValue');
+const relatedGrid = document.getElementById('relatedGrid');
+const sizeModal = document.getElementById('sizeModal');
+
+function renderGallery() {
+  mainImageEl.src = product.gallery[0];
+  mainImageEl.alt = product.name;
+  thumbsEl.innerHTML = product.gallery.map((src, idx) => `
+    <img class="thumb ${idx === 0 ? 'active' : ''}" src="${src}" alt="${product.name} ${idx + 1}" data-index="${idx}">
+  `).join('');
+
+  thumbsEl.querySelectorAll('.thumb').forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      const index = Number(thumb.dataset.index);
+      mainImageEl.src = product.gallery[index];
+      thumbsEl.querySelectorAll('.thumb').forEach(item => item.classList.remove('active'));
+      thumb.classList.add('active');
+    });
+  });
+}
+
+function renderSizes() {
+  sizeOptions.innerHTML = product.sizes.map(size => `
+    <button class="option-chip ${selectedSize === size ? 'active' : ''}" type="button" data-size="${size}">${size}</button>
+  `).join('');
+
+  sizeOptions.querySelectorAll('.option-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedSize = btn.dataset.size;
+      renderSizes();
+    });
+  });
+}
+
+function renderColors() {
+  colorOptions.innerHTML = product.colors.map(color => `
+    <button class="option-chip color ${selectedColor.code === color.code ? 'active' : ''}" type="button" data-color-code="${color.code}" title="${color.name}">
+      <span class="swatch" style="background:${color.value};"></span>${color.name}
+    </button>
+  `).join('');
+
+  colorOptions.querySelectorAll('.option-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const color = product.colors.find(item => item.code === btn.dataset.colorCode);
+      if (color) {
+        selectedColor = color;
+        renderColors();
+      }
+    });
+  });
+}
+
+function renderRelated() {
+  const relatedIds = product.similar || [];
+  const list = relatedIds.map(id => products[id]).filter(Boolean).slice(0, 4);
+  relatedGrid.innerHTML = list.map(item => `
+    <a href="product.html?id=${item.id}" class="related-card">
+      <img src="${item.gallery[0]}" alt="${item.name}">
+      <div class="title">${item.name}</div>
+      <div class="meta"><span>€${item.price}</span><span>أكثر</span></div>
+    </a>
+  `).join('');
+}
+
+function updateProduct() {
+  productTitle.textContent = product.name;
+  productPrice.textContent = `€${product.price}`;
+  productDesc.textContent = product.description;
+  fabricDesc.textContent = product.fabric;
+  productDetails.textContent = product.details;
+  renderGallery();
+  renderSizes();
+  renderColors();
+  renderRelated();
+}
+
+function getCartItems() {
+  try {
+    return JSON.parse(localStorage.getItem('mayarCart') || '[]');
+  } catch { return []; }
+}
+
+function addToCartAndCheckout(shouldCheckout = false) {
+  const cart = getCartItems();
+  const foundIndex = cart.findIndex(item => item.id === product.id && item.size === selectedSize && item.color === selectedColor.code);
+
+  if (foundIndex >= 0) {
+    cart[foundIndex].qty += qty;
+  } else {
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.gallery[0],
+      size: selectedSize,
+      color: selectedColor.code,
+      qty
+    });
+  }
+
+  localStorage.setItem('mayarCart', JSON.stringify(cart));
+
+  if (shouldCheckout) {
+    window.location.href = 'checkout.html';
+  } else {
+    const message = document.createElement('div');
+    message.textContent = 'تمت إضافة المنتج إلى السلة';
+    message.style.position = 'fixed';
+    message.style.left = '50%';
+    message.style.bottom = '18px';
+    message.style.transform = 'translateX(-50%)';
+    message.style.background = '#E6D5C3';
+    message.style.color = '#0C0C0C';
+    message.style.padding = '0.75rem 1.1rem';
+    message.style.borderRadius = '999px';
+    message.style.fontWeight = '600';
+    message.style.zIndex = '999999';
+    message.style.boxShadow = '0 10px 30px rgba(0,0,0,0.25)';
+    document.body.appendChild(message);
+    setTimeout(() => message.remove(), 1600);
+  }
+}
+
+document.getElementById('qtyPlus').addEventListener('click', () => { qty = Math.min(qty + 1, 9); qtyValue.textContent = qty; });
+document.getElementById('qtyMinus').addEventListener('click', () => { qty = Math.max(qty - 1, 1); qtyValue.textContent = qty; });
+
+document.getElementById('addToCartBtn').addEventListener('click', () => addToCartAndCheckout(false));
+document.getElementById('buyNowBtn').addEventListener('click', () => addToCartAndCheckout(true));
+
+document.getElementById('sizeGuideBtn').addEventListener('click', () => sizeModal.classList.add('show'));
+document.getElementById('closeSizeModal').addEventListener('click', () => sizeModal.classList.remove('show'));
+sizeModal.addEventListener('click', (event) => {
+  if (event.target === sizeModal) sizeModal.classList.remove('show');
+});
+
+updateProduct();
+</script>
+</body>
+</html>

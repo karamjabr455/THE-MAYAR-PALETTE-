@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>السلة والدفع | The Mayyar Palette</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --matte-black:#0C0C0C; --warm-beige:#E6D5C3; --pure-white:#FFFFFF;
+  --panel:rgba(255,255,255,.03); --panel-hover:rgba(230,213,195,.08); --line:rgba(230,213,195,.18);
+  --muted:#8f8779; --text-soft:#cfc6bb;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--matte-black);color:var(--pure-white);font-family:'Cairo',sans-serif;min-height:100vh;overflow-x:hidden;}
+::selection{background:var(--warm-beige);color:var(--matte-black);}
+a{color:inherit;}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--warm-beige);outline-offset:3px;}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms !important;transition-duration:.001ms !important;}}
+
+.navbar{
+  padding:1.2rem 5%;display:flex;justify-content:space-between;align-items:center;
+  background:rgba(12,12,12,.95);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:100;
+}
+.logo{font-family:'Cinzel',serif;font-size:1.3rem;font-weight:600;letter-spacing:3px;color:var(--warm-beige);text-decoration:none;}
+.secure-tag{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:.4rem;}
+
+.steps{display:flex;justify-content:center;gap:2.5rem;padding:2.2rem 5% 0;max-width:900px;margin:0 auto;}
+.step-pill{display:flex;align-items:center;gap:.6rem;font-size:.85rem;color:var(--muted);}
+.step-pill .num{width:26px;height:26px;border-radius:50%;border:1px solid var(--muted);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:.8rem;}
+.step-pill.active{color:var(--warm-beige);}
+.step-pill.active .num{border-color:var(--warm-beige);background:rgba(230,213,195,.12);}
+.step-pill.done .num{border-color:var(--warm-beige);background:var(--warm-beige);color:var(--matte-black);}
+
+.checkout-shell{max-width:1300px;margin:0 auto;padding:2.5rem 5% 6rem;display:grid;grid-template-columns:1fr 400px;gap:2.5rem;align-items:start;}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:1.8rem;}
+.card + .card{margin-top:1.6rem;}
+.card h2{font-family:'Cinzel',serif;color:var(--warm-beige);font-size:1.05rem;font-weight:600;letter-spacing:.5px;margin-bottom:1.4rem;}
+
+/* Cart items */
+.cart-item{display:flex;gap:1.1rem;padding:1.1rem 0;border-bottom:1px solid var(--line);}
+.cart-item:last-child{border-bottom:none;padding-bottom:0;}
+.cart-item img{width:80px;height:100px;object-fit:cover;border-radius:8px;flex-shrink:0;}
+.cart-item .info{flex:1;display:flex;flex-direction:column;}
+.cart-item .name{font-family:'Cinzel',serif;color:var(--warm-beige);font-size:.95rem;}
+.cart-item .meta{font-size:.78rem;color:var(--muted);margin-top:.3rem;}
+.cart-item .bottom-row{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:.6rem;}
+.qty-control{display:flex;align-items:center;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+.qty-control button{width:28px;height:28px;background:none;border:none;color:var(--text-soft);cursor:pointer;font-size:.95rem;}
+.qty-control button:hover{background:var(--panel-hover);color:var(--warm-beige);}
+.qty-control .qty-val{width:30px;text-align:center;font-size:.85rem;}
+.item-price{font-family:'Cinzel',serif;color:var(--pure-white);font-size:.95rem;}
+.remove-btn{background:none;border:none;color:var(--muted);font-size:.78rem;cursor:pointer;text-decoration:underline;}
+.remove-btn:hover{color:#e08a7d;}
+
+/* Shipping form */
+.field{margin-bottom:1.2rem;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.field label{display:block;font-size:.8rem;color:var(--text-soft);margin-bottom:.5rem;}
+.field input,.field select{
+  width:100%;background:rgba(255,255,255,.02);border:1px solid var(--line);color:var(--pure-white);
+  padding:.85rem 1rem;font-family:'Cairo',sans-serif;font-size:.92rem;border-radius:6px;transition:.25s;
+}
+.field input:focus,.field select:focus{border-color:var(--warm-beige);background:rgba(230,213,195,.05);}
+.field select option{background:#151515;}
+
+/* Payment */
+.pay-options{display:flex;flex-direction:column;gap:.8rem;}
+.pay-option{
+  display:flex;align-items:center;gap:.8rem;padding:1rem;border:1px solid var(--line);border-radius:10px;cursor:pointer;transition:.25s;
+}
+.pay-option:hover{border-color:rgba(230,213,195,.5);}
+.pay-option.selected{border-color:var(--warm-beige);background:rgba(230,213,195,.06);}
+.pay-option input{accent-color:var(--warm-beige);width:16px;height:16px;}
+.pay-option .label{font-size:.9rem;flex:1;}
+.pay-option .icons{font-size:.78rem;color:var(--muted);}
+.card-fields{display:none;margin-top:1rem;}
+.card-fields.show{display:block;}
+
+/* Summary sidebar */
+.summary{position:sticky;top:6rem;}
+.summary-row{display:flex;justify-content:space-between;font-size:.88rem;color:var(--text-soft);margin-bottom:.9rem;}
+.summary-row.total{border-top:1px solid var(--line);margin-top:1rem;padding-top:1.1rem;font-size:1.05rem;color:var(--pure-white);font-family:'Cinzel',serif;}
+.summary-row.total span:last-child{color:var(--warm-beige);}
+.promo-row{display:flex;gap:.6rem;margin:1.2rem 0;}
+.promo-row input{flex:1;background:rgba(255,255,255,.02);border:1px solid var(--line);color:var(--pure-white);padding:.7rem .9rem;border-radius:6px;font-size:.85rem;}
+.promo-row button{padding:.7rem 1.1rem;background:none;border:1px solid var(--warm-beige);color:var(--warm-beige);border-radius:6px;cursor:pointer;font-size:.82rem;}
+.promo-row button:hover{background:var(--warm-beige);color:var(--matte-black);}
+
+.btn-primary{
+  width:100%;margin-top:1.6rem;padding:1rem;background:var(--warm-beige);border:none;color:var(--matte-black);
+  font-family:'Cinzel',serif;font-weight:600;letter-spacing:2px;font-size:.85rem;text-transform:uppercase;
+  border-radius:6px;cursor:pointer;transition:.3s;position:relative;overflow:hidden;
+}
+.btn-primary:hover{background:#f0e4d6;transform:translateY(-1px);}
+.btn-primary.loading{color:transparent;pointer-events:none;}
+.btn-primary.loading::after{
+  content:'';position:absolute;inset:0;margin:auto;width:18px;height:18px;border-radius:50%;
+  border:2px solid rgba(12,12,12,.25);border-top-color:var(--matte-black);animation:spin .7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.secure-note{text-align:center;font-size:.76rem;color:var(--muted);margin-top:1rem;}
+
+.success-screen{max-width:520px;margin:6rem auto;text-align:center;padding:0 2rem;display:none;}
+.success-screen.show{display:block;}
+.success-icon{
+  width:70px;height:70px;border-radius:50%;background:rgba(230,213,195,.15);border:1px solid var(--warm-beige);
+  display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:var(--warm-beige);margin:0 auto 1.6rem;
+}
+.success-screen h1{font-family:'Cinzel',serif;color:var(--warm-beige);font-size:1.6rem;}
+.success-screen p{color:var(--muted);margin-top:1rem;line-height:1.9;}
+.success-screen .order-num{color:var(--warm-beige);font-family:'Cinzel',serif;}
+
+@media (max-width:900px){
+  .checkout-shell{grid-template-columns:1fr;}
+  .summary{position:static;}
+  .two-col{grid-template-columns:1fr;}
+  .steps{gap:1.2rem;}
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="logo">MAYYAR</a>
+  <div class="secure-tag">🔒 دفع آمن ومشفّر</div>
+</nav>
+
+<div class="steps">
+  <div class="step-pill done"><span class="num">✓</span> السلة</div>
+  <div class="step-pill active"><span class="num">2</span> الشحن والدفع</div>
+  <div class="step-pill"><span class="num">3</span> التأكيد</div>
+</div>
+
+<div id="checkoutView">
+<div class="checkout-shell">
+  <div class="main-col">
+    <div class="card">
+      <h2>محتويات السلة (<span id="cartCount">3</span>)</h2>
+      <div id="cartItems">
+        <div class="cart-item" data-price="480">
+          <img src="https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=300" alt="فستان حريري">
+          <div class="info">
+            <div class="name">فستان حريري</div>
+            <div class="meta">المقاس: M — اللون: بيج</div>
+            <div class="bottom-row">
+              <div class="qty-control"><button class="qty-minus">−</button><span class="qty-val">1</span><button class="qty-plus">+</button></div>
+              <span class="item-price">€480</span>
+            </div>
+          </div>
+        </div>
+        <div class="cart-item" data-price="890">
+          <img src="https://images.unsplash.com/photo-1548624313-0396c75e4de3?w=300" alt="معطف كشمير">
+          <div class="info">
+            <div class="name">معطف كشمير</div>
+            <div class="meta">المقاس: L — اللون: كحلي</div>
+            <div class="bottom-row">
+              <div class="qty-control"><button class="qty-minus">−</button><span class="qty-val">1</span><button class="qty-plus">+</button></div>
+              <span class="item-price">€890</span>
+            </div>
+          </div>
+        </div>
+        <div class="cart-item" data-price="620">
+          <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=300" alt="حقيبة جلدية">
+          <div class="info">
+            <div class="name">حقيبة جلدية</div>
+            <div class="meta">اللون: أسود</div>
+            <div class="bottom-row">
+              <div class="qty-control"><button class="qty-minus">−</button><span class="qty-val">1</span><button class="qty-plus">+</button></div>
+              <span class="item-price">€620</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>عنوان الشحن</h2>
+      <form id="shippingForm">
+        <div class="two-col">
+          <div class="field"><label>الاسم الأول</label><input type="text" placeholder="ندى" required></div>
+          <div class="field"><label>اسم العائلة</label><input type="text" placeholder="الخوري" required></div>
+        </div>
+        <div class="field"><label>العنوان</label><input type="text" placeholder="شارع، بناية، طابق" required></div>
+        <div class="two-col">
+          <div class="field"><label>المدينة</label><input type="text" placeholder="بيروت" required></div>
+          <div class="field"><label>الدولة</label>
+            <select required>
+              <option value="">اختاري الدولة</option>
+              <option>لبنان</option><option>الإمارات العربية المتحدة</option><option>المملكة العربية السعودية</option><option>الأردن</option><option>مصر</option>
+            </select>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field"><label>رقم الهاتف</label><input type="tel" placeholder="+961 71 234 567" required></div>
+          <div class="field"><label>الرمز البريدي (اختياري)</label><input type="text" placeholder="0000"></div>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>طريقة الدفع</h2>
+      <div class="pay-options">
+        <label class="pay-option selected">
+          <input type="radio" name="pay" checked value="card">
+          <span class="label">بطاقة ائتمان / خصم</span>
+          <span class="icons">Visa · Mastercard</span>
+        </label>
+        <label class="pay-option">
+          <input type="radio" name="pay" value="cod">
+          <span class="label">الدفع عند الاستلام</span>
+        </label>
+      </div>
+      <div class="card-fields show" id="cardFields">
+        <div class="field" style="margin-top:1.2rem;"><label>رقم البطاقة</label><input type="text" placeholder="0000 0000 0000 0000"></div>
+        <div class="two-col">
+          <div class="field"><label>تاريخ الانتهاء</label><input type="text" placeholder="MM/YY"></div>
+          <div class="field"><label>CVV</label><input type="text" placeholder="123"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <aside class="summary">
+    <div class="card">
+      <h2>ملخص الطلب</h2>
+      <div class="summary-row"><span>المجموع الفرعي</span><span id="subtotal">€1,990</span></div>
+      <div class="summary-row"><span>الشحن</span><span id="shipCost">€25</span></div>
+      <div class="summary-row" id="discountRow" style="display:none;"><span>الخصم</span><span id="discountVal" style="color:#8fd6a0;">−€0</span></div>
+      <div class="promo-row">
+        <input type="text" id="promoInput" placeholder="كود الخصم">
+        <button type="button" id="promoBtn">تطبيق</button>
+      </div>
+      <div class="summary-row total"><span>الإجمالي</span><span id="grandTotal">€2,015</span></div>
+      <button class="btn-primary" id="placeOrderBtn">إتمام الطلب</button>
+      <p class="secure-note">جميع المعاملات مشفّرة وآمنة 🔒</p>
+    </div>
+  </aside>
+</div>
+</div>
+
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">✓</div>
+  <h1>شكراً لطلبك، ندى</h1>
+  <p>تم استلام طلبك بنجاح وسيتم تجهيزه خلال 24 ساعة.<br>رقم الطلب: <span class="order-num" id="orderNum">#MP-1043</span></p>
+  <a href="account.html" class="btn-primary" style="display:inline-block;width:auto;padding:1rem 2.2rem;margin-top:2rem;text-decoration:none;">تتبع الطلب من حسابي</a>
+</div>
+
+<script>
+const cartItems = document.getElementById('cartItems');
+const subtotalEl = document.getElementById('subtotal');
+const grandTotalEl = document.getElementById('grandTotal');
+const shipCostEl = document.getElementById('shipCost');
+const cartCountEl = document.getElementById('cartCount');
+const SHIP_COST = 25;
+let discount = 0;
+
+function getCartItems() {
+  try {
+    return JSON.parse(localStorage.getItem('mayarCart') || 'null') || [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function renderCart() {
+  const items = getCartItems();
+  if (!items.length) {
+    cartItems.innerHTML = '<div style="color:#8f8779;padding:1rem 0;">السلة فارغة حاليًا</div>';
+    recalc();
+    return;
+  }
+
+  cartItems.innerHTML = items.map(item => `
+    <div class="cart-item" data-price="${item.price}">
+      <img src="${item.image}" alt="${item.name}">
+      <div class="info">
+        <div class="name">${item.name}</div>
+        <div class="meta">المقاس: ${item.size || '-'} — اللون: ${item.color || '-'}</div>
+        <div class="bottom-row">
+          <div class="qty-control"><button class="qty-minus">−</button><span class="qty-val">${item.qty || 1}</span><button class="qty-plus">+</button></div>
+          <span class="item-price">€${(item.price * (item.qty || 1)).toLocaleString()}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  recalc();
+}
+
+function recalc(){
+  let subtotal = 0, count = 0;
+  document.querySelectorAll('.cart-item').forEach(item => {
+    const price = parseFloat(item.dataset.price);
+    const qty = parseInt(item.querySelector('.qty-val').textContent);
+    subtotal += price * qty;
+    count += qty;
+  });
+  const shipping = subtotal > 0 ? SHIP_COST : 0;
+  const total = Math.max(subtotal + shipping - discount, 0);
+  subtotalEl.textContent = `€${subtotal.toLocaleString()}`;
+  shipCostEl.textContent = `€${shipping}`;
+  grandTotalEl.textContent = `€${total.toLocaleString()}`;
+  cartCountEl.textContent = count;
+}
+
+cartItems.addEventListener('click', (e) => {
+  const item = e.target.closest('.cart-item');
+  if(!item) return;
+  const qtyEl = item.querySelector('.qty-val');
+  let qty = parseInt(qtyEl.textContent);
+  if(e.target.classList.contains('qty-plus')) qty = Math.min(qty + 1, 9);
+  if(e.target.classList.contains('qty-minus')) qty = Math.max(qty - 1, 1);
+  qtyEl.textContent = qty;
+  recalc();
+});
+
+document.querySelectorAll('.pay-option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    document.querySelectorAll('.pay-option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    opt.querySelector('input').checked = true;
+    document.getElementById('cardFields').classList.toggle('show', opt.querySelector('input').value === 'card');
+  });
+});
+
+document.getElementById('promoBtn').addEventListener('click', () => {
+  const val = document.getElementById('promoInput').value.trim().toUpperCase();
+  if(val === 'MAYYAR10'){
+    discount = 100;
+    document.getElementById('discountRow').style.display = 'flex';
+    document.getElementById('discountVal').textContent = `−€${discount}`;
+  } else {
+    document.getElementById('promoInput').style.borderColor = '#e08a7d';
+    setTimeout(() => document.getElementById('promoInput').style.borderColor = '', 1200);
+  }
+  recalc();
+});
+
+document.getElementById('placeOrderBtn').addEventListener('click', () => {
+  const form = document.getElementById('shippingForm');
+  if(!form.checkValidity()){ form.reportValidity(); return; }
+  const btn = document.getElementById('placeOrderBtn');
+  btn.classList.add('loading');
+  setTimeout(() => {
+    document.getElementById('checkoutView').style.display = 'none';
+    document.querySelector('.steps').style.display = 'none';
+    document.getElementById('successScreen').classList.add('show');
+  }, 1300);
+});
+
+recalc();
+</script>
+</body>
+</html>

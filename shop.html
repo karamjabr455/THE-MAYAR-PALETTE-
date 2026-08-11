@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تسوّق الكل | The Mayyar Palette</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;900&family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --matte-black: #0C0C0C;
+      --warm-beige: #E6D5C3;
+      --pure-white: #FFFFFF;
+      --panel: rgba(255,255,255,0.03);
+      --panel-hover: rgba(230,213,195,0.08);
+      --line: rgba(230,213,195,0.18);
+      --muted: #8f8779;
+      --text-soft: #cfc6bb;
+      --success: #9ad1a3;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: auto; }
+    body {
+      margin: 0;
+      background: var(--matte-black);
+      color: var(--pure-white);
+      font-family: 'Cairo', sans-serif;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, select, input { font: inherit; }
+    button { cursor: pointer; }
+    img { display: block; max-width: 100%; }
+    ::selection { background: var(--warm-beige); color: var(--matte-black); }
+
+    .topbar {
+      position: sticky; top: 0; z-index: 30;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 5%;
+      background: rgba(12,12,12,0.9);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+    .brand { font-family: 'Cinzel', serif; font-size: 1.3rem; letter-spacing: 2px; color: var(--warm-beige); }
+    .top-actions { display: flex; align-items: center; gap: 0.8rem; }
+    .shop-link, .cart-button { 
+      border: 1px solid var(--line); background: transparent; color: var(--warm-beige);
+      border-radius: 999px; padding: 0.65rem 1rem; font-size: 0.82rem;
+    }
+    .cart-button {
+      position: relative; width: 44px; height: 44px; border-radius: 50%; display: inline-flex;
+      align-items: center; justify-content: center; padding: 0;
+    }
+    .cart-badge {
+      position: absolute; top: -6px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px;
+      border-radius: 50%; background: var(--warm-beige); color: var(--matte-black); font-size: 0.64rem;
+      display: flex; align-items: center; justify-content: center; font-weight: 700;
+    }
+    .page-shell { max-width: 1500px; margin: 0 auto; padding: 2.5rem 5% 5rem; }
+
+    .page-head {
+      display: flex; align-items: end; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+      margin-bottom: 1.8rem;
+    }
+    .page-head h1 {
+      font-family: 'Cinzel', serif; font-size: clamp(2rem, 3vw, 3rem);
+      color: var(--warm-beige);
+      font-weight: 600;
+    }
+    .page-head p { color: var(--text-soft); }
+
+    .shop-layout {
+      display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 2rem;
+      align-items: start;
+    }
+
+    .filters-panel {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 1.2rem;
+      position: sticky; top: 88px;
+    }
+    .filter-block + .filter-block { margin-top: 1.4rem; }
+    .filter-block h3 {
+      color: var(--warm-beige); font-size: 0.96rem; margin-bottom: 0.8rem; font-weight: 600;
+    }
+    .filter-block select, .filter-block input {
+      width: 100%; background: rgba(255,255,255,0.02); border: 1px solid var(--line);
+      border-radius: 10px; color: var(--pure-white); padding: 0.75rem 0.9rem;
+    }
+    .filter-block select option { background: #181818; }
+    .range-row { display: flex; align-items: center; gap: 0.7rem; }
+    .range-row input { flex: 1; }
+    .range-label { color: var(--text-soft); font-size: 0.8rem; }
+
+    .catalog-panel {
+      display: flex; flex-direction: column; gap: 1.3rem;
+    }
+    .catalog-toolbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+      background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 1rem 1.2rem;
+    }
+    .toolbar-info { color: var(--text-soft); font-size: 0.9rem; }
+    .toolbar-select {
+      border: 1px solid var(--line); background: rgba(255,255,255,0.02); color: var(--pure-white);
+      border-radius: 10px; padding: 0.7rem 0.9rem; min-width: 180px;
+    }
+    .toolbar-select option { background: #171717; }
+
+    .product-grid {
+      display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 1.4rem;
+    }
+    .product-card {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 0.8rem; transition: 0.25s ease;
+    }
+    .product-card:hover { background: var(--panel-hover); transform: translateY(-4px); }
+    .product-image-wrap { position: relative; overflow: hidden; border-radius: 12px; }
+    .product-image { width: 100%; height: 360px; object-fit: cover; display: block; }
+    .badge { position: absolute; top: 12px; right: 12px; background: rgba(12,12,12,0.7); color: var(--warm-beige); border: 1px solid var(--line); border-radius: 999px; padding: 0.4rem 0.7rem; font-size: 0.72rem; }
+    .product-info { padding: 0.9rem 0 0.2rem; }
+    .product-top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+    .product-name { font-family: 'Cinzel', serif; color: var(--warm-beige); font-size: 1.02rem; }
+    .product-price { font-weight: 700; color: var(--pure-white); }
+    .product-meta { color: var(--text-soft); font-size: 0.8rem; margin-top: 0.35rem; }
+    .product-actions { display: flex; gap: 0.6rem; margin-top: 1rem; }
+    .action-btn {
+      border: 1px solid var(--line); background: transparent; color: var(--warm-beige); border-radius: 10px;
+      padding: 0.72rem 0.9rem; flex: 1; transition: 0.25s;
+    }
+    .action-btn.primary {
+      background: var(--warm-beige); color: var(--matte-black); border-color: var(--warm-beige);
+      font-weight: 700;
+    }
+    .action-btn:hover { background: var(--panel-hover); }
+    .action-btn.primary:hover { background: #f0e4d6; }
+
+    .empty-state {
+      border: 1px dashed var(--line); border-radius: 16px; padding: 2rem; text-align: center; color: var(--text-soft);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .mini-cart {
+      position: fixed; inset: 0 0 0 auto; width: min(420px, 100%);
+      background: rgba(12,12,12,0.98); border-left: 1px solid var(--line);
+      transform: translateX(110%); transition: transform 0.35s ease; z-index: 50; display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    .mini-cart.open { transform: translateX(0); }
+    .cart-header {
+      display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 1.25rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .cart-header h3 { font-family: 'Cinzel', serif; color: var(--warm-beige); }
+    .close-cart { background: transparent; color: var(--text-soft); border: none; font-size: 1.5rem; }
+    .cart-body { padding: 1rem 1.25rem; overflow-y: auto; }
+    .cart-item {
+      display: flex; gap: 0.9rem; padding: 0.7rem 0; border-bottom: 1px solid var(--line);
+    }
+    .cart-item img { width: 72px; height: 90px; object-fit: cover; border-radius: 10px; }
+    .cart-item .details { flex: 1; }
+    .cart-item .title { color: var(--warm-beige); font-size: 0.96rem; }
+    .cart-item .meta { color: var(--text-soft); font-size: 0.75rem; margin-top: 0.2rem; }
+    .cart-item .line { display: flex; justify-content: space-between; align-items: center; margin-top: 0.55rem; }
+    .qty-pill { display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid var(--line); border-radius: 999px; padding: 0.15rem 0.5rem; }
+    .qty-pill button { background: none; border: none; color: var(--warm-beige); font-size: 1rem; width: 20px; }
+    .cart-footer { border-top: 1px solid var(--line); padding: 1.1rem 1.25rem 1.4rem; }
+    .totals { display: flex; justify-content: space-between; margin-bottom: 0.8rem; color: var(--text-soft); }
+    .totals strong { color: var(--pure-white); }
+    .cart-actions { display: grid; gap: 0.7rem; }
+    .cart-actions button {
+      width: 100%; padding: 0.9rem 1rem; border-radius: 10px; border: 1px solid var(--line);
+      background: transparent; color: var(--warm-beige);
+    }
+    .cart-actions .checkout { background: var(--warm-beige); border-color: var(--warm-beige); color: var(--matte-black); font-weight: 700; }
+    .cart-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; z-index: 40;
+    }
+    .cart-overlay.show { opacity: 1; pointer-events: auto; }
+
+    @media (max-width: 1100px) {
+      .shop-layout { grid-template-columns: 1fr; }
+      .filters-panel { position: static; }
+      .product-grid { grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+    }
+    @media (max-width: 640px) {
+      .product-grid { grid-template-columns: 1fr; }
+      .page-head { align-items: start; }
+      .page-shell { padding-inline: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <a href="index.html" class="brand">MAYYAR</a>
+    <div class="top-actions">
+      <a href="index.html" class="shop-link">عودة للصفحة الرئيسية</a>
+      <button class="cart-button" id="openCartBtn" type="button" aria-label="فتح السلة">
+        👜
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="page-shell">
+    <div class="page-head">
+      <div>
+        <h1>تسوّق الكل</h1>
+        <p>أزياء مختارة بعناية، خامات فاخرة، وموديلات تناسب كل إطلالة.</p>
+      </div>
+    </div>
+
+    <div class="shop-layout">
+      <aside class="filters-panel">
+        <div class="filter-block">
+          <h3>نوع القطعة</h3>
+          <select id="typeFilter">
+            <option value="all">الكل</option>
+            <option value="dress">فساتين</option>
+            <option value="outerwear">ملابس خارجية</option>
+            <option value="accessories">إكسسوارات</option>
+            <option value="shoes">أحذية</option>
+          </select>
+        </div>
+
+        <div class="filter-block">
+          <h3>لون</h3>
+          <select id="colorFilter">
+            <option value="all">الكل</option>
+            <option value="بيج">بيج</option>
+            <option value="أسود">أسود</option>
+            <option value="أزرق">أزرق</option>
+            <option value="كحلي">كحلي</option>
+            <option value="ذهبي">ذهبي</option>
+            <option value="بني">بني</option>
+          </select>
+        </div>
+
+        <div class="filter-block">
+          <h3>المقاس</h3>
+          <select id="sizeFilter">
+            <option value="all">الكل</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+            <option value="one size">one size</option>
+          </select>
+        </div>
+
+        <div class="filter-block">
+          <h3>السعر</h3>
+          <div class="range-row">
+            <span class="range-label">حتى</span>
+            <input id="priceRange" type="range" min="100" max="1000" step="10" value="1000" />
+          </div>
+          <div class="range-label" id="priceRangeLabel">€1000</div>
+        </div>
+      </aside>
+
+      <div class="catalog-panel">
+        <div class="catalog-toolbar">
+          <div class="toolbar-info" id="resultsCount">عرض 0 قطعة</div>
+          <select id="sortFilter" class="toolbar-select">
+            <option value="featured">الأحدث</option>
+            <option value="price-asc">السعر: الأقل أولاً</option>
+            <option value="price-desc">السعر: الأعلى أولاً</option>
+            <option value="name">الاسم</option>
+          </select>
+        </div>
+
+        <div class="product-grid" id="productGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="mini-cart" id="miniCart" aria-label="سلة التسوق">
+    <div class="cart-header">
+      <h3>سلة التسوق</h3>
+      <button type="button" class="close-cart" id="closeCartBtn" aria-label="إغلاق السلة">×</button>
+    </div>
+    <div class="cart-body" id="cartBody"></div>
+    <div class="cart-footer">
+      <div class="totals">
+        <span>الإجمالي</span>
+        <strong id="cartTotal">€0</strong>
+      </div>
+      <div class="cart-actions">
+        <button type="button" id="continueShoppingBtn">استمر بالتسوق</button>
+        <button type="button" class="checkout" id="checkoutBtn">إتمام الشراء</button>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    const products = [
+      { id: 'dress-1', name: 'فستان حريري', type: 'dress', color: 'بيج', size: 'M', price: 480, image: 'https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=900', badge: 'جديد' },
+      { id: 'coat-1', name: 'معطف كشمير', type: 'outerwear', color: 'كحلي', size: 'L', price: 890, image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900', badge: 'حصري' },
+      { id: 'bag-1', name: 'حقيبة جلدية', type: 'accessories', color: 'أسود', size: 'one size', price: 620, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900', badge: 'الأكثر طلباً' },
+      { id: 'shoe-1', name: 'حذاء أنيق', type: 'shoes', color: 'بيج', size: '39', price: 360, image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=900', badge: 'رائج' },
+      { id: 'watch-1', name: 'ساعة فاخرة', type: 'accessories', color: 'ذهبي', size: 'one size', price: 540, image: 'https://images.unsplash.com/photo-1523170335258-f5ed118de2b4?auto=format&fit=crop&w=900', badge: 'حصري' },
+      { id: 'scarf-1', name: 'وشاح فاخر', type: 'accessories', color: 'أسود', size: 'one size', price: 290, image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900', badge: 'مميز' },
+      { id: 'dress-2', name: 'فستان كاجوال', type: 'dress', color: 'أزرق', size: 'S', price: 410, image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900', badge: 'جديد' },
+      { id: 'coat-2', name: 'معطف شتوي', type: 'outerwear', color: 'أسود', size: 'XL', price: 760, image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900', badge: 'حصري' },
+      { id: 'bag-2', name: 'حقيبة كريمية', type: 'accessories', color: 'بيج', size: 'one size', price: 490, image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=900', badge: 'مميز' },
+      { id: 'shoe-2', name: 'حذاء كاجوال', type: 'shoes', color: 'أسود', size: '40', price: 330, image: 'https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=900', badge: 'رائج' },
+      { id: 'dress-3', name: 'فستان ليل', type: 'dress', color: 'أسود', size: 'L', price: 610, image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900', badge: 'حصري' },
+      { id: 'coat-3', name: 'جاكيت أنيق', type: 'outerwear', color: 'بني', size: 'M', price: 680, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900', badge: 'جديد' }
+    ];
+
+    const typeFilter = document.getElementById('typeFilter');
+    const colorFilter = document.getElementById('colorFilter');
+    const sizeFilter = document.getElementById('sizeFilter');
+    const priceRange = document.getElementById('priceRange');
+    const priceRangeLabel = document.getElementById('priceRangeLabel');
+    const sortFilter = document.getElementById('sortFilter');
+    const resultsCount = document.getElementById('resultsCount');
+    const productGrid = document.getElementById('productGrid');
+
+    const cartOverlay = document.getElementById('cartOverlay');
+    const miniCart = document.getElementById('miniCart');
+    const cartBody = document.getElementById('cartBody');
+    const cartTotal = document.getElementById('cartTotal');
+    const cartBadge = document.getElementById('cartBadge');
+
+    function getCartItems() {
+      try {
+        return JSON.parse(localStorage.getItem('mayarCart') || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveCart(items) {
+      localStorage.setItem('mayarCart', JSON.stringify(items));
+      updateCartSummary();
+    }
+
+    function updateCartSummary() {
+      const cart = getCartItems();
+      const totalCount = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+      cartBadge.textContent = totalCount;
+      const totalValue = cart.reduce((sum, item) => sum + Number(item.price) * (item.qty || 1), 0);
+      cartTotal.textContent = `€${totalValue}`;
+    }
+
+    function addToCart(productId, qty = 1) {
+      const cart = getCartItems();
+      const product = products.find(item => item.id === productId);
+      if (!product) return;
+
+      const existingIndex = cart.findIndex(item => item.id === product.id && item.size === product.size && item.color === product.color);
+      if (existingIndex >= 0) {
+        cart[existingIndex].qty += qty;
+      } else {
+        cart.push({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          size: product.size,
+          color: product.color,
+          qty
+        });
+      }
+
+      saveCart(cart);
+      openMiniCart();
+      renderMiniCart();
+    }
+
+    function openMiniCart() {
+      miniCart.classList.add('open');
+      cartOverlay.classList.add('show');
+    }
+
+    function closeMiniCart() {
+      miniCart.classList.remove('open');
+      cartOverlay.classList.remove('show');
+    }
+
+    function changeQty(productId, delta) {
+      const cart = getCartItems();
+      const index = cart.findIndex(item => item.id === productId);
+      if (index === -1) return;
+      cart[index].qty = Math.max(1, (cart[index].qty || 1) + delta);
+      saveCart(cart);
+      renderMiniCart();
+    }
+
+    function removeFromCart(productId) {
+      const cart = getCartItems().filter(item => item.id !== productId);
+      saveCart(cart);
+      renderMiniCart();
+    }
+
+    function renderMiniCart() {
+      const cart = getCartItems();
+      if (!cart.length) {
+        cartBody.innerHTML = '<div class="empty-state" style="margin-top:1rem;">السلة فارغة الآن</div>';
+        cartTotal.textContent = '€0';
+        cartBadge.textContent = '0';
+        return;
+      }
+
+      cartBody.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <img src="${item.image}" alt="${item.name}">
+          <div class="details">
+            <div class="title">${item.name}</div>
+            <div class="meta">${item.color} · ${item.size}</div>
+            <div class="line">
+              <div class="qty-pill">
+                <button type="button" data-change="-1" data-id="${item.id}">−</button>
+                <span>${item.qty || 1}</span>
+                <button type="button" data-change="1" data-id="${item.id}">+</button>
+              </div>
+              <strong>€${(Number(item.price) * (item.qty || 1))}</strong>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      cartBody.querySelectorAll('[data-change]').forEach(button => {
+        button.addEventListener('click', () => {
+          const id = button.dataset.id;
+          const delta = Number(button.dataset.change);
+          changeQty(id, delta);
+        });
+      });
+
+      updateCartSummary();
+    }
+
+    function getFilteredProducts() {
+      const selectedType = typeFilter.value;
+      const selectedColor = colorFilter.value;
+      const selectedSize = sizeFilter.value;
+      const maxPrice = Number(priceRange.value);
+      const sortValue = sortFilter.value;
+
+      let filtered = products.filter(item => {
+        const typePass = selectedType === 'all' || item.type === selectedType;
+        const colorPass = selectedColor === 'all' || item.color === selectedColor;
+        const sizePass = selectedSize === 'all' || item.size === selectedSize;
+        const pricePass = item.price <= maxPrice;
+        return typePass && colorPass && sizePass && pricePass;
+      });
+
+      if (sortValue === 'price-asc') filtered.sort((a, b) => a.price - b.price);
+      if (sortValue === 'price-desc') filtered.sort((a, b) => b.price - a.price);
+      if (sortValue === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name));
+
+      return filtered;
+    }
+
+    function renderProducts() {
+      const filtered = getFilteredProducts();
+      resultsCount.textContent = `عرض ${filtered.length} قطعة`;
+      priceRangeLabel.textContent = `€${priceRange.value}`;
+
+      if (!filtered.length) {
+        productGrid.innerHTML = '<div class="empty-state" style="grid-column:1 / -1;">لا توجد منتجات تطابق الفلاتر الحالية.</div>';
+        return;
+      }
+
+      productGrid.innerHTML = filtered.map(item => `
+        <article class="product-card">
+          <div class="product-image-wrap">
+            <span class="badge">${item.badge}</span>
+            <img class="product-image" src="${item.image}" alt="${item.name}" />
+          </div>
+          <div class="product-info">
+            <div class="product-top">
+              <div class="product-name">${item.name}</div>
+              <div class="product-price">€${item.price}</div>
+            </div>
+            <div class="product-meta">${item.color} · ${item.size}</div>
+            <div class="product-actions">
+              <button class="action-btn primary" data-add="${item.id}" type="button">أضف للسلة</button>
+              <button class="action-btn" data-detail="${item.id}" type="button">تفاصيل</button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+
+      productGrid.querySelectorAll('[data-add]').forEach(btn => {
+        btn.addEventListener('click', () => addToCart(btn.dataset.add, 1));
+      });
+
+      productGrid.querySelectorAll('[data-detail]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          window.location.href = `product.html?id=${encodeURIComponent(btn.dataset.detail)}`;
+        });
+      });
+    }
+
+    [typeFilter, colorFilter, sizeFilter, sortFilter].forEach(el => el.addEventListener('change', renderProducts));
+    priceRange.addEventListener('input', renderProducts);
+
+    document.getElementById('openCartBtn').addEventListener('click', openMiniCart);
+    document.getElementById('closeCartBtn').addEventListener('click', closeMiniCart);
+    cartOverlay.addEventListener('click', closeMiniCart);
+    document.getElementById('continueShoppingBtn').addEventListener('click', closeMiniCart);
+    document.getElementById('checkoutBtn').addEventListener('click', () => {
+      window.location.href = 'checkout.html';
+    });
+
+    renderProducts();
+    renderMiniCart();
+  </script>
+</body>
+</html>
