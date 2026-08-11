@@ -739,10 +739,19 @@
 
     document.querySelectorAll('.nav-links a').forEach(link => {
         link.addEventListener('click', (e) => {
-            e.preventDefault();
             const section = link.dataset.section;
-            if (section) scrollToSection(section);
+            const href = link.getAttribute('href');
+
+            if (section) {
+                e.preventDefault();
+                scrollToSection(section);
+            }
+
             if (navMenu.classList.contains('active')) { navMenu.classList.remove('active'); resetHamburger(); }
+
+            if (!section && href && href !== '#') {
+                return;
+            }
         });
     });
     document.getElementById('heroCta')?.addEventListener('click', () => scrollToSection('collections'));
